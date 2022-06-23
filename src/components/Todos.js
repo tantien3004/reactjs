@@ -1,26 +1,43 @@
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
 import TodoItem from './TodoItem'
 import AddTodo from './AddTodo'
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require('uuid')
+import axios from 'axios'
 
 const Todos = () => {
     const [todosState, setTodosState] = useState([
-        {
-            id: uuidv4(),
-            title: 'Cleaning',
-            completed: false,
-        },
-        {
-            id: uuidv4(),
-            title: 'Cooking',
-            completed: false,
-        },
-        {
-            id: uuidv4(),
-            title: 'Do exercise',
-            completed: false,
-        }
+        // {
+        //     id: uuidv4(),
+        //     title: 'Cleaning',
+        //     completed: false,
+        // },
+        // {
+        //     id: uuidv4(),
+        //     title: 'Cooking',
+        //     completed: false,
+        // },
+        // {
+        //     id: uuidv4(),
+        //     title: 'Do exercise',
+        //     completed: false,
+        // }
+
     ])
+
+    useEffect(() => {
+        const getTodos = async () => {
+            try {
+                const res = await axios.get( //bất đồng bộ
+                    'https://jsonplaceholder.typicode.com/todos?_limit=10'
+                )
+                setTodosState(res.data)
+            } catch (error) {
+                console.log(error.message)
+            }
+        }
+
+        getTodos()
+    }, [])
 
     const markComplete = id => {
         const newTodos = todosState.map(todo => {
@@ -31,20 +48,30 @@ const Todos = () => {
         setTodosState(newTodos)
     }
 
-    const deleteTodo = (id) => {
-        const newTodos = todosState.filter(todo => todo.id !== id)
-        setTodosState(newTodos)
+    const deleteTodo = async (id) => {
+        try {
+            await axios.delete('https://jsonplaceholder.typicode.com/todos/${id}')
+            const newTodos = todosState.filter(todo => todo.id !== id)
+            setTodosState(newTodos)
+
+        } catch (error) {
+            console.log(error.message)
+        }
     }
 
-    const addTodo = (title) => {
-        const newTodos = [...todosState, // = const newTodos = [{viec1}, {viec2}, {viec3}]
-        {
-            id: uuidv4(),
-            title,
-            completed: false,
-        }]  
-
-        setTodosState(newTodos)
+    const addTodo = async (title) => {
+        try {
+            const res = await axios.post(
+                'https:://jsonplaceholder.typicode.com/todos',{
+                    title,
+                    completed: false,
+                }
+            )
+            const newTodos = [...todosState, res.data]
+            setTodosState(newTodos)
+        } catch (error) {
+            console.log(error.message)
+        }
     }
     
     return (

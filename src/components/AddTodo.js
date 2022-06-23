@@ -16,6 +16,7 @@ const AddTodo = props => {
         if (title !== '' && /\S/.test(title))
         {
             addTodo(title);
+            setTitle('')
         }
     }
  
